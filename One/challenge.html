@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>HTML/CSS Challenge</title>
+  <link rel="stylesheet" href="css.css">
+</head>
+
+<body>
+
+  <div class="layout">
+
+    <div class="editor">
+      <h2>CODE – <span id="challenge-name"></span></h2>
+
+      <textarea id="code"></textarea>
+
+      <button onclick="runCode()">Run / Check</button>
+      <div id="result" class="result"></div>
+    </div>
+
+    <div class="preview">
+      <h2>PREVIEW</h2>
+      <iframe id="frame"></iframe>
+    </div>
+
+  </div>
+
+<script>
+  // --- 3 CHALLENGES POSSIBLES ---
+  const challenges = [
+    {
+      title: "Make the title red",
+      code: `<!-- Complete the code below -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* Make the title red */
+      h1 {
+        color: /* write here */;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello world</h1>
+  </body>
+</html>
+`,
+      check(code) {
+        return code.includes("color: red");
+      }
+    },
+
+    {
+      title: "Center the title",
+      code: `<!-- Complete the code below -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* Center the title */
+      h1 {
+        text-align: /* write here */;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello world</h1>
+  </body>
+</html>
+`,
+      check(code) {
+        return code.includes("text-align: center");
+      }
+    },
+
+    {
+      title: "Make the background blue",
+      code: `<!-- Complete the code below -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* Make the background blue */
+      body {
+        background-color: /* write here */;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello world</h1>
+  </body>
+</html>
+`,
+      check(code) {
+        return code.includes("background-color: blue");
+      }
+    }
+  ];
+
+  let currentChallenge = null;
+  let attempts = 0;
+  const maxAttempts = 3;
+
+  // --- Charger un challenge aléatoire ---
+  function loadRandomChallenge() {
+    const textarea = document.getElementById('code');
+    const titleEl = document.getElementById('challenge-name');
+    const frame = document.getElementById('frame');
+    const result = document.getElementById('result');
+    const button = document.querySelector('button');
+
+    // Choix au hasard
+    const index = Math.floor(Math.random() * challenges.length);
+    currentChallenge = challenges[index];
+
+    // Reset
+    attempts = 0;
+    textarea.disabled = false;
+    button.disabled = false;
+    frame.srcdoc = "";
+    result.textContent = "";
+
+    // Injecte le code + le titre
+    textarea.value = currentChallenge.code;
+    titleEl.textContent = currentChallenge.title;
+  }
+
+  // --- Verrouillage après 3 essais ---
+  function lockChallenge(message) {
+    const textarea = document.getElementById('code');
+    const button = document.querySelector('button');
+    const result = document.getElementById('result');
+
+    textarea.disabled = true;
+    button.disabled = true;
+    result.textContent = message;
+    result.style.color = "red";
+  }
+
+  // --- Vérification au clic sur le bouton ---
+  function runCode() {
+    const textarea = document.getElementById('code');
+    const code = textarea.value;
+    const frame = document.getElementById('frame');
+    const result = document.getElementById('result');
+
+    if (!currentChallenge) return;
+    if (textarea.disabled) return;
+
+    // Afficher le code dans la preview
+    frame.srcdoc = code;
+
+    // Vérification spécifique à la question courante
+    if (currentChallenge.check(code)) {
+      result.textContent = "✅ Correct! Well done.";
+      result.style.color = "lightgreen";
+    } else {
+      attempts++;
+      if (attempts >= maxAttempts) {
+        lockChallenge("❌ You lost. No more attempts.");
+      } else {
+        const left = maxAttempts - attempts;
+        result.textContent =
+          `❌ Incorrect (${left} attempt${left > 1 ? "s" : ""} left).`;
+        result.style.color = "orange";
+      }
+    }
+  }
+
+  // Charger un challenge aléatoire dès que la page est prête
+  window.addEventListener("DOMContentLoaded", loadRandomChallenge);
+</script>
+
+</body>
+</html>
