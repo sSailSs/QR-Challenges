@@ -10,11 +10,14 @@ body {
   color: #e5e7eb;
 }
 
-/* Conteneur principal */
+/* Conteneur principal : VERSION PAR DÉFAUT = MOBILE = EN COLONNE */
 .layout {
-  width: min(1100px, 100% - 32px);
+  width: 100%;
+  max-width: 1100px;
   display: flex;
+  flex-direction: column;   /* empile CODE puis PREVIEW */
   gap: 16px;
+  padding: 0 12px;
 }
 
 /* Panneaux CODE & PREVIEW */
@@ -97,30 +100,21 @@ button:hover {
   font-weight: bold;
 }
 
-/* MODE MOBILE */
-@media (max-width: 768px) {
-
+/* 💻 VERSION GRAND ÉCRAN : on met CODE et PREVIEW côte à côte */
+@media (min-width: 769px) {
   body {
     align-items: center;
-    justify-content: flex-start;
-    padding-top: 40px;
+    justify-content: center;
   }
 
   .layout {
-    flex-direction: column;
-    width: 100%;
-    padding: 0 12px;
+    flex-direction: row;          /* côte à côte */
+    width: min(1100px, 100% - 32px);
+    padding: 0;
   }
 
-  .editor, 
+  .editor,
   .preview {
-    width: 95%;
-    margin: 0 auto;        /* centre chaque bloc */
-  }
-
-  textarea,
-  iframe {
-    height: 250px;          /* ajusté pour mobile */
+    width: 100%;
   }
 }
-
