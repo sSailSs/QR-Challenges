@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML/CSS Challenge</title>
+  <link rel="stylesheet" href="css.css">
+</head>
+
+<body>
+
+  <div class="layout">
+
+    <div class="editor">
+      <h2>CHALLENGE – <span id="challenge-name"></span></h2>
+
+      <p id="challenge-instruction" class="hint"></p>
+
+      <pre id="code-snippet"></pre>
+
+      <label for="answer" class="hint">Type your answer here:</label>
+      <input id="answer" type="text" autocomplete="off" />
+
+      <button onclick="runCode()">Run / Check</button>
+      <div id="result" class="result"></div>
+    </div>
+
+    <div class="preview">
+      <h2>PREVIEW</h2>
+      <iframe id="frame"></iframe>
+    </div>
+
+  </div>
+
+<script>
+  // --- CHALLENGES SIMPLIFIÉS ---
+  const challenges = [
+{
+    title: "Invisible Ninja Text",
+    instruction: "Make the text visible again by giving it the color black.",
+    snippet: `p {\n  color: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        p { color: ${answer}; font-size: 22px; text-align:center; }
+      </style>
+      <body>
+        <p>I'm back! 🥷</p>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "black";
+    }
+  },
+
+  {
+    title: "Baby Title Needs Space",
+    instruction: "Add some space above the title using margin-top.",
+    snippet: `h1 {\n  margin-top: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        h1 { margin-top: ${answer}; text-align:center; }
+      </style>
+      <body>
+        <h1>Hello!</h1>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      // accepte "20px", "30px", "40px" etc.
+      return /^[0-9]+px$/.test(answer.trim());
+    }
+  },
+
+  {
+    title: "Tiny Title… Too Tiny!",
+    instruction: "Make the title readable again by setting the font-size to 30px.",
+    snippet: `h1 {\n  font-size: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        h1 { font-size: ${answer}; text-align:center; }
+      </style>
+      <body>
+        <h1>I can finally breathe 😮‍💨</h1>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "30px";
+    }
+  },
+
+  {
+    title: "Mystery Background",
+    instruction: "Give the body a light gray background.",
+    snippet: `body {\n  background-color: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        body { background-color: ${answer}; }
+        h1 { text-align:center; }
+      </style>
+      <body>
+        <h1>Nice and smooth 🎨</h1>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "lightgray" ||
+             answer.trim().toLowerCase() === "lightgrey";
+    }
+  },
+
+  {
+    title: "Sad Paragraph Needs Centering",
+    instruction: "Center the paragraph horizontally.",
+    snippet: `p {\n  text-align: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        p { text-align: ${answer}; font-size:22px; }
+      </style>
+      <body>
+        <p>Thanks! I feel better 💖</p>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "center";
+    }
+  },
+
+  {
+    title: "Box in Jail",
+    instruction: "Free the box by adding a 2px solid black border.",
+    snippet: `div {\n  border: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        div {
+          border: ${answer};
+          padding: 20px;
+          width: 120px;
+          margin: 40px auto;
+          text-align:center;
+        }
+      </style>
+      <body>
+        <div>I'm free! 🕊️</div>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "2px solid black";
+    }
+  }
+    
+  ];
+
+  let currentChallenge = null;
+  let attempts = 0;
+  const maxAttempts = 3;
+
+  // --- Charger un challenge aléatoire ---
+function loadRandomChallenge() {
+  const titleEl = document.getElementById('challenge-name');
+  const instructionEl = document.getElementById('challenge-instruction');
+  const snippetEl = document.getElementById('code-snippet');
+  const answerInput = document.getElementById('answer');
+  const frame = document.getElementById('frame');
+  const result = document.getElementById('result');
+  const button = document.querySelector('button');
+
+  const index = Math.floor(Math.random() * challenges.length);
+  currentChallenge = challenges[index];
+
+  attempts = 0;
+  answerInput.disabled = false;
+  button.disabled = false;
+  answerInput.value = "";
+  result.textContent = "";
+  result.style.color = "";
+
+  titleEl.textContent = currentChallenge.title;
+  instructionEl.textContent = currentChallenge.instruction;
+  snippetEl.textContent = currentChallenge.snippet;
+
+  // 🆕 petit message par défaut dans la preview
+  frame.srcdoc = `
+    <style>
+      body { 
+        background:#111827; 
+        color:#e5e7eb; 
+        font-family: system-ui, sans-serif; 
+        display:flex; 
+        align-items:center; 
+        justify-content:center; 
+        height:100vh; 
+        margin:0;
+        text-align:center;
+      }
+    </style>
+    <body>
+      <p>Type your answer and click<br><strong>“Run / Check”</strong> 👇</p>
+    </body>
+  `;
+}
+
+
+  // --- Verrouillage après 3 essais ---
+  function lockChallenge(message) {
+    const answerInput = document.getElementById('answer');
+    const button = document.querySelector('button');
+    const result = document.getElementById('result');
+
+    answerInput.disabled = true;
+    button.disabled = true;
+    result.textContent = message;
+    result.style.color = "red";
+  }
+
+  // --- Vérification au clic sur le bouton ---
+function runCode() {
+  if (!currentChallenge) return;
+
+  const answerInput = document.getElementById('answer');
+  const frame = document.getElementById('frame');
+  const result = document.getElementById('result');
+
+  if (answerInput.disabled) return;
+
+  const answerRaw = answerInput.value;
+  const answer = answerRaw.trim();
+
+  // 🆕 Si aucune réponse, on ne consomme PAS d'essai
+  if (answer === "") {
+    result.textContent = "Please type an answer before running 🙂";
+    result.style.color = "orange";
+    return;
+  }
+
+  // Construire la page à partir de la réponse
+  const page = currentChallenge.buildPage(answer);
+  frame.srcdoc = page;
+
+  // Vérification
+  if (currentChallenge.check(answer)) {
+    result.textContent = "✅ Correct! Well done.";
+    result.style.color = "lightgreen";
+  } else {
+    attempts++;
+    if (attempts >= maxAttempts) {
+      lockChallenge("❌ You lost. No more attempts.");
+    } else {
+      const left = maxAttempts - attempts;
+      result.textContent =
+        `❌ Incorrect (${left} attempt${left > 1 ? "s" : ""} left).`;
+      result.style.color = "orange";
+    }
+  }
+}
+
+
+  window.addEventListener("DOMContentLoaded", loadRandomChallenge);
+</script>
+
+</body>
+</html>
