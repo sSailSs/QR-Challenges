@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML/CSS Challenge</title>
+  <link rel="stylesheet" href="css.css">
+</head>
+
+<body>
+
+  <div class="layout">
+
+    <div class="editor">
+      <h2>CHALLENGE – <span id="challenge-name"></span></h2>
+
+      <p id="challenge-instruction" class="hint"></p>
+
+      <pre id="code-snippet"></pre>
+
+      <label for="answer" class="hint">Type your answer here:</label>
+      <input id="answer" type="text" autocomplete="off" />
+
+      <button onclick="runCode()">Run / Check</button>
+      <div id="result" class="result"></div>
+    </div>
+
+    <div class="preview">
+      <h2>PREVIEW</h2>
+      <iframe id="frame"></iframe>
+    </div>
+
+  </div>
+
+<script>
+  // --- CHALLENGES SIMPLIFIÉS ---
+  const challenges = [
+{
+  title: "Rounded Button",
+  instruction: "Make the button look softer by rounding its corners to 15px.",
+  snippet: `/* The button is too sharp, round it a bit 🔪➡🟢 */\nbutton {\n  border-radius: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <html>
+    <style>
+      body { text-align:center; padding-top:40px; }
+      button {
+        border-radius: ${answer};
+        padding: 10px 20px;
+        border: none;
+        background:#3b82f6;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+      }
+    </style>
+    <body>
+      <button>Click me</button>
+    </body>
+    </html>`;
+  },
+  check(answer) {
+    return answer.trim().toLowerCase() === "15px";
+  }
+},
+
+{
+  title: "Big Comfy Button",
+  instruction: "Make the button comfy by adding padding: 10px 20px.",
+  snippet: `/* The button feels empty… give it some padding 🛏️ */\nbutton {\n  padding: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <html>
+    <style>
+      body { text-align:center; padding-top:40px; }
+      button {
+        padding: ${answer};
+        border-radius: 8px;
+        border: none;
+        background:#22c55e;
+        color:white;
+        font-size:16px;
+      }
+    </style>
+    <body>
+      <button>So comfy</button>
+    </body>
+    </html>`;
+  },
+  check(answer) {
+    return answer.replace(/\s+/g, " ").trim().toLowerCase() === "10px 20px";
+  }
+},
+
+{
+  title: "Shouting Title",
+  instruction: "Make the title use only uppercase letters.",
+  snippet: `/* The title wants to shout in UPPERCASE 📢 */\nh1 {\n  text-transform: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <html>
+    <style>
+      h1 { text-transform:${answer}; text-align:center; font-size:40px; }
+    </style>
+    <body>
+      <h1>please read me</h1>
+    </body>
+    </html>`;
+  },
+  check(answer) {
+    return answer.trim().toLowerCase() === "uppercase";
+  }
+},
+
+{
+  title: "Magic Hover Link",
+  instruction: "Underline the link when the mouse is over it.",
+  snippet: `/* The link wants a magic underline on hover ✨ */\na:hover {\n  text-decoration: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <html>
+    <style>
+      body { text-align:center; padding-top:40px; font-size:24px; }
+      a { color:#3b82f6; text-decoration:none; }
+      a:hover { text-decoration:${answer}; }
+    </style>
+    <body>
+      <a href="#">Hover me</a>
+    </body>
+    </html>`;
+  },
+  check(answer) {
+    return answer.trim().toLowerCase() === "underline";
+  }
+},
+
+{
+  title: "Centered Box (Old School)",
+  instruction: "Center the box using margin: 0 auto; (classic trick).",
+  snippet: `/* Old-school centering trick 🧙‍♂️ */\n.box {\n  margin: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <html>
+    <style>
+      .box {
+        margin:${answer};
+        width:200px;
+        height:80px;
+        background:#f97316;
+        text-align:center;
+        line-height:80px;
+        color:white;
+        font-weight:bold;
+      }
+      body { background:#020617; }
+    </style>
+    <body>
+      <div class="box">Centered!</div>
+    </body>
+    </html>`;
+  },
+  check(answer) {
+    return answer.replace(/\s+/g, " ").trim().toLowerCase() === "0 auto";
+  }
+},
+
+{
+  title: "Ghost Box",
+  instruction: "Make the box half transparent with opacity 0.5.",
+  snippet: `/* The box wants to be a ghost 👻 */\n.box {\n  opacity: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <html>
+    <style>
+      body { background:#111827; }
+      .box {
+        opacity:${answer};
+        width:200px;
+        height:80px;
+        margin:40px auto;
+        background:#ec4899;
+        text-align:center;
+        line-height:80px;
+        color:white;
+        font-weight:bold;
+      }
+    </style>
+    <body>
+      <div class="box">Boo!</div>
+    </body>
+    </html>`;
+  },
+  check(answer) {
+    return answer.trim() === "0.5";
+  }
+}
+
+  ];
+
+  let currentChallenge = null;
+  let attempts = 0;
+  const maxAttempts = 3;
+
+  // --- Charger un challenge aléatoire ---
+function loadRandomChallenge() {
+  const titleEl = document.getElementById('challenge-name');
+  const instructionEl = document.getElementById('challenge-instruction');
+  const snippetEl = document.getElementById('code-snippet');
+  const answerInput = document.getElementById('answer');
+  const frame = document.getElementById('frame');
+  const result = document.getElementById('result');
+  const button = document.querySelector('button');
+
+  const index = Math.floor(Math.random() * challenges.length);
+  currentChallenge = challenges[index];
+
+  attempts = 0;
+  answerInput.disabled = false;
+  button.disabled = false;
+  answerInput.value = "";
+  result.textContent = "";
+  result.style.color = "";
+
+  titleEl.textContent = currentChallenge.title;
+  instructionEl.textContent = currentChallenge.instruction;
+  snippetEl.textContent = currentChallenge.snippet;
+
+  // 🆕 petit message par défaut dans la preview
+  frame.srcdoc = `
+    <style>
+      body { 
+        background:#111827; 
+        color:#e5e7eb; 
+        font-family: system-ui, sans-serif; 
+        display:flex; 
+        align-items:center; 
+        justify-content:center; 
+        height:100vh; 
+        margin:0;
+        text-align:center;
+      }
+    </style>
+    <body>
+      <p>Type your answer and click<br><strong>“Run / Check”</strong> 👇</p>
+    </body>
+  `;
+}
+
+
+  // --- Verrouillage après 3 essais ---
+  function lockChallenge(message) {
+    const answerInput = document.getElementById('answer');
+    const button = document.querySelector('button');
+    const result = document.getElementById('result');
+
+    answerInput.disabled = true;
+    button.disabled = true;
+    result.textContent = message;
+    result.style.color = "red";
+  }
+
+  // --- Vérification au clic sur le bouton ---
+function runCode() {
+  if (!currentChallenge) return;
+
+  const answerInput = document.getElementById('answer');
+  const frame = document.getElementById('frame');
+  const result = document.getElementById('result');
+
+  if (answerInput.disabled) return;
+
+  const answerRaw = answerInput.value;
+  const answer = answerRaw.trim();
+
+  // 🆕 Si aucune réponse, on ne consomme PAS d'essai
+  if (answer === "") {
+    result.textContent = "Please type an answer before running 🙂";
+    result.style.color = "orange";
+    return;
+  }
+
+  // Construire la page à partir de la réponse
+  const page = currentChallenge.buildPage(answer);
+  frame.srcdoc = page;
+
+  // Vérification
+  if (currentChallenge.check(answer)) {
+    result.textContent = "✅ Correct! Well done.";
+    result.style.color = "lightgreen";
+  } else {
+    attempts++;
+    if (attempts >= maxAttempts) {
+      lockChallenge("❌ You lost. No more attempts.");
+    } else {
+      const left = maxAttempts - attempts;
+      result.textContent =
+        `❌ Incorrect (${left} attempt${left > 1 ? "s" : ""} left).`;
+      result.style.color = "orange";
+    }
+  }
+}
+
+
+  window.addEventListener("DOMContentLoaded", loadRandomChallenge);
+</script>
+
+</body>
+</html>
