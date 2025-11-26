@@ -12,9 +12,14 @@
   <div class="layout">
 
     <div class="editor">
-      <h2>CODE – <span id="challenge-name"></span></h2>
+      <h2>CHALLENGE – <span id="challenge-name"></span></h2>
 
-      <textarea id="code"></textarea>
+      <p id="challenge-instruction" class="hint"></p>
+
+      <pre id="code-snippet"></pre>
+
+      <label for="answer" class="hint">Type your answer here:</label>
+      <input id="answer" type="text" autocomplete="off" />
 
       <button onclick="runCode()">Run / Check</button>
       <div id="result" class="result"></div>
@@ -28,76 +33,85 @@
   </div>
 
 <script>
-  // --- 3 CHALLENGES POSSIBLES ---
+  // --- CHALLENGES SIMPLIFIÉS ---
   const challenges = [
-    {
-      title: "Make the title red",
-      code: `<!-- Complete the code below -->
-<!DOCTYPE html>
-<html>
-  <head>
-    <style>
-      /* Make the title red */
-      h1 {
-        color: /* write here */;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Hello world</h1>
-  </body>
-</html>
-`,
-      check(code) {
-        return code.includes("color: red");
-      }
-    },
+{
+  title: "Angry Title",
+  instruction: "Make the title red.",
+  snippet: `/* The title is angry today, make it red 😡 */\nh1 {\n  color: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <style>h1{color:${answer};text-align:center;font-size:40px;}</style>
+    <h1>I'm angry!!</h1>`;
+  },
+  check(ans) { return ans.trim().toLowerCase() === "red"; }
+},
 
-    {
-      title: "Center the title",
-      code: `<!-- Complete the code below -->
-<!DOCTYPE html>
-<html>
-  <head>
-    <style>
-      /* Center the title */
-      h1 {
-        text-align: /* write here */;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Hello world</h1>
-  </body>
-</html>
-`,
-      check(code) {
-        return code.includes("text-align: center");
-      }
-    },
+{
+  title: "Shy Title",
+  instruction: "Center the title.",
+  snippet: `/* The title is shy… put it in the center 🙈 */\nh1 {\n  text-align: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <style>h1{text-align:${answer};font-size:40px;}</style>
+    <h1>Hello...</h1>`;
+  },
+  check(ans) { return ans.trim().toLowerCase() === "center"; }
+},
 
-    {
-      title: "Make the background blue",
-      code: `<!-- Complete the code below -->
-<!DOCTYPE html>
-<html>
-  <head>
-    <style>
-      /* Make the background blue */
-      body {
-        background-color: /* write here */;
-      }
+{
+  title: "Screaming Title",
+  instruction: "Make the title bold.",
+  snippet: `/* The title wants to scream LOUDER 😱 */\nh1 {\n  font-weight: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <style>h1{font-weight:${answer};text-align:center;font-size:40px;}</style>
+    <h1>AAAAAH!</h1>`;
+  },
+  check(ans) { return ans.trim().toLowerCase() === "bold"; }
+},
+
+{
+  title: "Sad Paragraph",
+  instruction: "Make the text blue.",
+  snippet: `/* The paragraph is feeling a bit sad today 😢 */\np {\n  color: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <style>p{color:${answer};text-align:center;font-size:30px;}</style>
+    <p>I'm blue...</p>`;
+  },
+  check(ans) { return ans.trim().toLowerCase() === "blue"; }
+},
+
+{
+  title: "Sunshine Mode",
+  instruction: "Make the background yellow.",
+  snippet: `/* The page wants sunshine 🌞 Give it a yellow background */\nbody {\n  background-color: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <style>body{background:${answer};text-align:center;font-size:30px;}</style>
+    <h1>So sunny!</h1>`;
+  },
+  check(ans) { return ans.trim().toLowerCase() === "yellow"; }
+},
+
+{
+  title: "Invisible Ninja",
+  instruction: "Make the title white.",
+  snippet: `/* The title is a sneaky ninja 🥷 Make it white */\nh1 {\n  color: ____;\n}`,
+  buildPage(answer) {
+    return `
+    <style>body{background:black;}
+           h1{color:${answer};text-align:center;font-size:40px;}
     </style>
-  </head>
-  <body>
-    <h1>Hello world</h1>
-  </body>
-</html>
-`,
-      check(code) {
-        return code.includes("background-color: blue");
-      }
-    }
+    <h1>...</h1>`;
+  },
+  check(ans) { return ans.trim().toLowerCase() === "white"; }
+}
+
+
+
+    
   ];
 
   let currentChallenge = null;
@@ -105,75 +119,107 @@
   const maxAttempts = 3;
 
   // --- Charger un challenge aléatoire ---
-  function loadRandomChallenge() {
-    const textarea = document.getElementById('code');
-    const titleEl = document.getElementById('challenge-name');
-    const frame = document.getElementById('frame');
-    const result = document.getElementById('result');
-    const button = document.querySelector('button');
+function loadRandomChallenge() {
+  const titleEl = document.getElementById('challenge-name');
+  const instructionEl = document.getElementById('challenge-instruction');
+  const snippetEl = document.getElementById('code-snippet');
+  const answerInput = document.getElementById('answer');
+  const frame = document.getElementById('frame');
+  const result = document.getElementById('result');
+  const button = document.querySelector('button');
 
-    // Choix au hasard
-    const index = Math.floor(Math.random() * challenges.length);
-    currentChallenge = challenges[index];
+  const index = Math.floor(Math.random() * challenges.length);
+  currentChallenge = challenges[index];
 
-    // Reset
-    attempts = 0;
-    textarea.disabled = false;
-    button.disabled = false;
-    frame.srcdoc = "";
-    result.textContent = "";
+  attempts = 0;
+  answerInput.disabled = false;
+  button.disabled = false;
+  answerInput.value = "";
+  result.textContent = "";
+  result.style.color = "";
 
-    // Injecte le code + le titre
-    textarea.value = currentChallenge.code;
-    titleEl.textContent = currentChallenge.title;
-  }
+  titleEl.textContent = currentChallenge.title;
+  instructionEl.textContent = currentChallenge.instruction;
+  snippetEl.textContent = currentChallenge.snippet;
+
+  // 🆕 petit message par défaut dans la preview
+  frame.srcdoc = `
+    <style>
+      body { 
+        background:#111827; 
+        color:#e5e7eb; 
+        font-family: system-ui, sans-serif; 
+        display:flex; 
+        align-items:center; 
+        justify-content:center; 
+        height:100vh; 
+        margin:0;
+        text-align:center;
+      }
+    </style>
+    <body>
+      <p>Type your answer and click<br><strong>“Run / Check”</strong> 👇</p>
+    </body>
+  `;
+}
+
 
   // --- Verrouillage après 3 essais ---
   function lockChallenge(message) {
-    const textarea = document.getElementById('code');
+    const answerInput = document.getElementById('answer');
     const button = document.querySelector('button');
     const result = document.getElementById('result');
 
-    textarea.disabled = true;
+    answerInput.disabled = true;
     button.disabled = true;
     result.textContent = message;
     result.style.color = "red";
   }
 
   // --- Vérification au clic sur le bouton ---
-  function runCode() {
-    const textarea = document.getElementById('code');
-    const code = textarea.value;
-    const frame = document.getElementById('frame');
-    const result = document.getElementById('result');
+function runCode() {
+  if (!currentChallenge) return;
 
-    if (!currentChallenge) return;
-    if (textarea.disabled) return;
+  const answerInput = document.getElementById('answer');
+  const frame = document.getElementById('frame');
+  const result = document.getElementById('result');
 
-    // Afficher le code dans la preview
-    frame.srcdoc = code;
+  if (answerInput.disabled) return;
 
-    // Vérification spécifique à la question courante
-    if (currentChallenge.check(code)) {
-      result.textContent = "✅ Correct! Well done.";
-      result.style.color = "lightgreen";
-    } else {
-      attempts++;
-      if (attempts >= maxAttempts) {
-        lockChallenge("❌ You lost. No more attempts.");
-      } else {
-        const left = maxAttempts - attempts;
-        result.textContent =
-          `❌ Incorrect (${left} attempt${left > 1 ? "s" : ""} left).`;
-        result.style.color = "orange";
-      }
-    }
+  const answerRaw = answerInput.value;
+  const answer = answerRaw.trim();
+
+  // 🆕 Si aucune réponse, on ne consomme PAS d'essai
+  if (answer === "") {
+    result.textContent = "Please type an answer before running 🙂";
+    result.style.color = "orange";
+    return;
   }
 
-  // Charger un challenge aléatoire dès que la page est prête
+  // Construire la page à partir de la réponse
+  const page = currentChallenge.buildPage(answer);
+  frame.srcdoc = page;
+
+  // Vérification
+  if (currentChallenge.check(answer)) {
+    result.textContent = "✅ Correct! Well done.";
+    result.style.color = "lightgreen";
+  } else {
+    attempts++;
+    if (attempts >= maxAttempts) {
+      lockChallenge("❌ You lost. No more attempts.");
+    } else {
+      const left = maxAttempts - attempts;
+      result.textContent =
+        `❌ Incorrect (${left} attempt${left > 1 ? "s" : ""} left).`;
+      result.style.color = "orange";
+    }
+  }
+}
+
+
   window.addEventListener("DOMContentLoaded", loadRandomChallenge);
 </script>
 
 </body>
 </html>
-
