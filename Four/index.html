@@ -37,185 +37,149 @@
   const challenges = [
 // === HARD CHALLENGES ===
 
-{
-  title: "Perfect Center (Flexbox)",
-  instruction: "Use flexbox to center the text in the middle of the page.",
-  snippet: `/* The box wants to be perfectly centered 😌 */\n.container {\n  ____;\n}`,
-  buildPage(answer) {
-    return `
-    <html>
-    <style>
-      body { margin:0; height:100vh; }
-      .container {
-        ${answer}
-        height:100vh;
-      }
-      h1 { margin:0; font-size:32px; }
-    </style>
-    <body>
-      <div class="container">
-        <h1>Perfectly centered!</h1>
-      </div>
-    </body>
-    </html>`;
-  },
-  check(answer) {
-    const normalized = answer.replace(/\s+/g, " ").trim().toLowerCase();
-    const target = "display: flex; justify-content: center; align-items: center;";
-    return normalized === target.replace(/\s+/g, " ").trim().toLowerCase();
-  }
-},
+// === SUPER SIMPLE HTML & CSS CARDS ===
 
-{
-  title: "Glowing Title",
-  instruction: "Give the title a soft dark shadow: 2px 2px 4px black.",
-  snippet: `/* The title wants a cool shadow 😎 */\nh1 {\n  text-shadow: ____;\n}`,
-  buildPage(answer) {
-    return `
-    <html>
-    <style>
-      body { background:#020617; color:white; }
-      h1 {
-        text-shadow:${answer};
-        text-align:center;
-        margin-top:80px;
-        font-size:40px;
-      }
-    </style>
-    <body>
-      <h1>Glowing text</h1>
-    </body>
-    </html>`;
-  },
-  check(answer) {
-    return answer.replace(/\s+/g, " ").trim().toLowerCase() ===
-           "2px 2px 4px black";
-  }
-},
 
-{
-  title: "Floating Card Shadow",
-  instruction: "Make the card look like it's floating using a box shadow.",
-  snippet: `/* Give me a nice shadow 🪄 */\n.card {\n  box-shadow: ____;\n}`,
-  buildPage(answer) {
-    return `
-    <html>
-    <style>
-      body { background:#0f172a; }
-      .card {
-        box-shadow:${answer};
-        width:220px;
-        margin:80px auto;
-        padding:20px;
-        border-radius:12px;
-        background:white;
-        text-align:center;
-        font-family:sans-serif;
-      }
-    </style>
-    <body>
-      <div class="card">I'm floating ✨</div>
-    </body>
-    </html>`;
+  // 1) FLEXBOX
+  {
+    title: "Enable Flexbox",
+    instruction: "Write the value that activates flexbox.",
+    snippet: `/* Activate flexbox 😌 */\n.container {\n  display: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        body { margin:0; }
+        .container {
+          display:${answer};
+          justify-content:center;
+          align-items:center;
+          height:100vh;
+          background:#eee;
+          font-size:28px;
+          font-family:sans-serif;
+        }
+      </style>
+      <body>
+        <div class="container">Flex activated!</div>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "flex";
+    }
   },
-  check(answer) {
-    const normalized = answer.replace(/\s+/g, " ").trim().toLowerCase();
-    const target = "0 4px 10px rgba(0,0,0,0.4)";
-    return normalized === target;
-  }
-},
 
-{
-  title: "Crazy Transform",
-  instruction: "Rotate the title by -10 degrees and make it 1.2 times bigger.",
-  snippet: `/* Tilt me and make me bigger 🤪 */\nh1 {\n  transform: ____;\n}`,
-  buildPage(answer) {
-    return `
-    <html>
-    <style>
-      body { text-align:center; padding-top:80px; }
-      h1 {
-        transform:${answer};
-        font-size:40px;
-        display:inline-block;
-      }
-    </style>
-    <body>
-      <h1>Weird title</h1>
-    </body>
-    </html>`;
+  // 2) BOLD TEXT
+  {
+    title: "Bold Text",
+    instruction: "Write the value that makes text bold.",
+    snippet: `/* Make me strong 💪 */\nh1 {\n  font-weight: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        h1 {
+          font-weight:${answer};
+          text-align:center;
+          font-size:40px;
+          margin-top:80px;
+          font-family:sans-serif;
+        }
+      </style>
+      <body>
+        <h1>Bold title!</h1>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "bold";
+    }
   },
-  check(answer) {
-    const normalized = answer.replace(/\s+/g, "").toLowerCase();
-    const target = "rotate(-10deg)scale(1.2)";
-    return normalized === target;
-  }
-},
 
-{
-  title: "Gradient Sky",
-  instruction: "Create a gradient from purple to orange, going to the right.",
-  snippet: `/* The sky wants a gradient 🌈 */\nbody {\n  background: ____;\n}`,
-  buildPage(answer) {
-    return `
-    <html>
-    <style>
-      body {
-        margin:0;
-        height:100vh;
-        background:${answer};
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:32px;
-        color:white;
-        font-family:sans-serif;
-      }
-    </style>
-    <body>
-      <div>Nice gradient!</div>
-    </body>
-    </html>`;
+  // 3) CENTER TEXT
+  {
+    title: "Center Text",
+    instruction: "Write the value that centers text.",
+    snippet: `/* Center me ➕ */\n.box {\n  text-align: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        .box {
+          text-align:${answer};
+          margin-top:120px;
+          font-size:32px;
+          font-family:sans-serif;
+        }
+      </style>
+      <body>
+        <div class="box">Centered text!</div>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "center";
+    }
   },
-  check(answer) {
-    const normalized = answer.replace(/\s+/g, " ").trim().toLowerCase();
-    const target = "linear-gradient(to right, purple, orange)";
-    return normalized === target;
-  }
-},
 
-{
-  title: "Hover Zoom Button",
-  instruction: "Make the button grow slightly on hover using transform: scale(1.1).",
-  snippet: `/* The button wants to grow when hovered 🧨 */\nbutton:hover {\n  transform: ____;\n}`,
-  buildPage(answer) {
-    return `
-    <html>
-    <style>
-      body { text-align:center; padding-top:80px; }
-      button {
-        padding:12px 24px;
-        border:none;
-        border-radius:999px;
-        background:#3b82f6;
-        color:white;
-        font-size:18px;
-        cursor:pointer;
-        transition:transform 0.15s ease;
-      }
-      button:hover {
-        transform:${answer};
-      }
-    </style>
-    <body>
-      <button>Hover me</button>
-    </body>
-    </html>`;
+  // 4) REMOVE BULLETS
+  {
+    title: "Remove Bullets",
+    instruction: "Write the value that removes list bullets.",
+    snippet: `/* No bullets 🔫 */\nul {\n  list-style: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        ul {
+          list-style:${answer};
+          font-size:28px;
+          margin-top:60px;
+          font-family:sans-serif;
+        }
+      </style>
+      <body>
+        <ul>
+          <li>Item 1</li>
+          <li>Item 2</li>
+        </ul>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "none";
+    }
   },
-  check(answer) {
-    return answer.replace(/\s+/g, "").toLowerCase() === "scale(1.1)";
+
+  // 5) HIDE ELEMENT
+  {
+    title: "Hide Element",
+    instruction: "Write the value that hides an element.",
+    snippet: `/* Make me disappear 🪄 */\n.box {\n  display: ____;\n}`,
+    buildPage(answer) {
+      return `
+      <html>
+      <style>
+        .box {
+          display:${answer};
+          font-size:32px;
+          margin-top:80px;
+          font-family:sans-serif;
+        }
+      </style>
+      <body>
+        <div class="box">You shouldn't see me 👀</div>
+        <div style="margin-top:40px; text-align:center; font-size:28px;">
+          Hidden or not?
+        </div>
+      </body>
+      </html>`;
+    },
+    check(answer) {
+      return answer.trim().toLowerCase() === "none";
+    }
   }
-}
 
   ];
 
